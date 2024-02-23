@@ -19,27 +19,27 @@ public class GameMechanics : MonoBehaviour
 
     public int[,] boardData;
 
-    /*
+    
     //listener to update grid size
     private void onEnable()
     {
         UIManager.OnChangeGridSize += UIManager_OnChangeGridSize;
     }
-
+    
     //changes grid size
-    private void UIManager.OnChangeGridSize(int m, int n)
+    public void OnChangeGridSize(int m, int n)
     {
         CreateBoard(m, n);
     }
-
+    
     //disable grid size change
     private void OnDisable()
     {
         UIManager.OnChangeGridSize() -= UIManager_OnChangeGridSize;
     }
-    */
+    
 
-    void CreateBoard(int newLength, int newWidth)
+    public void CreateBoard(int newLength, int newWidth)
     {
         length = newLength;
         width = newWidth;
