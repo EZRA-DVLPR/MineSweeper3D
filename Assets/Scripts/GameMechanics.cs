@@ -21,21 +21,25 @@ public class GameMechanics : MonoBehaviour
 
     
     //listener to update grid size
-    private void onEnable()
+    private void OnEnable()
     {
         UIManager.OnChangeGridSize += UIManager_OnChangeGridSize;
     }
     
     //changes grid size
-    public void OnChangeGridSize(int m, int n)
+    private void UIManager_OnChangeGridSize(int newLength, int newWidth)
     {
-        CreateBoard(m, n);
+        CreateBoard(newLength, newWidth);
+        GameObject tempObject = GameObject.FindGameObjectWithTag("Main Menu");
+        //hide it
+        tempObject.transform.gameObject.SetActive(false);
+    
     }
     
     //disable grid size change
     private void OnDisable()
     {
-        UIManager.OnChangeGridSize() -= UIManager_OnChangeGridSize;
+        UIManager.OnChangeGridSize -= UIManager_OnChangeGridSize;
     }
     
 
@@ -141,7 +145,7 @@ public class GameMechanics : MonoBehaviour
 
         Debug.Log($"Game Setup Complete!");
 
-        CreateBoard(9,9);
+        //CreateBoard(9,9);
     }
 
     // Update is called once per frame
