@@ -2,14 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using System;
 
 public class GameMechanics : MonoBehaviour
 {
     public GameObject cellPrefab;
 
-    public int difficulty = 0;
+    public int difficulty;
 
-    public int numBombs = 10;
+    public int numBombs;
 
     public int length = 9;
     
@@ -17,7 +18,7 @@ public class GameMechanics : MonoBehaviour
 
     RaycastHit tmpHitHighlight;
 
-    public int[,] boardData;
+    public GameObject[,] boardData;
 
     
     //listener to update grid size
@@ -45,107 +46,66 @@ public class GameMechanics : MonoBehaviour
 
     public void CreateBoard(int newLength, int newWidth)
     {
+        //update stored length and width
         length = newLength;
         width = newWidth;
 
-        //set boardData to 0's
-        boardData = new int[length, width];
+        //create area to make calculations easier later on
+        int area = length * width;
 
-        int numBombsSet = 0;
+        //set boardData to size of the length * width
+        boardData = new GameObject[length, width];
 
-        //makes tiles
+        //decide how many bombs to place
+        //the number of bombs to place is roughly the square root of the area of the board
+        numBombs = Mathf.RoundToInt(Mathf.Sqrt(area));
+
+        //create the locations for the bombs to be placed
+        int[] bombLocs = new int[numBombs];
+
+        //plant the bombs in random positions on the board
+        for (int i = 0; i < numBombs; i++)
+        {
+            bombLocs[i] = UnityEngine.Random.Range(0, area);
+        }
+
+        //makes cells for board
         for (int i = 0; i < length; i++)
         {
             for (int j = 0; j < width; j++)
             {
-                //create cellPrefab
+                //create cellPrefab and assign transform information
                 var go = GameObject.Instantiate(cellPrefab, Vector3.zero, Quaternion.identity);
                 go.transform.position = new Vector3(i, j, 0);
                 go.transform.Rotate(270, 0, 0);
-
-                //go.transform.localScale = new Vector3(1, 1, 1);
                 go.transform.name = $"[{i}, {j}]";
 
+                //insert the newly made game object into the boardData
+                boardData[i,j] = go;
+
+                //assign row and column in component
                 var cd = go.transform.GetComponent<CellLogic>();
                 cd.row = i;
                 cd.col = j;
 
-                //can we make more bombs
-                if (numBombsSet < numBombs)
+                //assign bomb if the the given index is within the bombLocs array
+                if ((Array.IndexOf(bombLocs, ((i * length) + j))) != -1)
                 {
-                    //determine if the current tile should be a bomb or not
-                    //adjust randomization into this
-                    if (Random.Range(1,10) > 7)
-                    {
-                        cd.IsBomb = true;
-                        numBombsSet++;
-
-                        //update boardData to bomb
-                        boardData[i, j] = -1;
-                    }
+                    cd.IsBomb = true;
+                } else
+                {
+                    //since the element is not a bomb, we assign it a value of 0 
+                    cd.cellValue = 0;
                 }
             }
         }
-
         updateBoardData();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        /*
-        //difficulty selected determines some of the other game vars such as length
-        switch(difficulty)
-        {
-            //easy
-            case 0:
-                numBombs = 10;
-                length = width = 9;
-                break;
-
-            //medium
-            case 1:
-                numBombs = 32;
-                length = width = 16;
-                break;
-
-            //hard
-            case 2:
-                numBombs = 60;
-                length =  30;
-                width = 16;
-                break;
-
-            //customizable size
-            case 3:
-                //numBombs \exists in range of 10% to 20% of the total tiles being bombs
-                //dims must be >= 2
-                numBombs = -1;
-                length = 10;
-                width = 10;
-                break;
-
-            //improperly defined
-            default:
-                numBombs = 0;
-                length = width = 1;
-                Debug.Log($"Improperly defined difficulty. Please Select from the following: 0, 1, 2, 3");
-                Debug.Log($"0 = Easy\n1 = Medium\n2 = Large\n3 = Custom Size");
-                break;
-        }
-
-        */
-
-        //sets up the tiles to be used in game
-        //number of current bombs set
-
-
-
-        //other game setup options
-
-        Debug.Log($"Game Setup Complete!");
-
-        //CreateBoard(9,9);
+        //Debug.Log($"Game Setup Complete!");
     }
 
     // Update is called once per frame
@@ -164,13 +124,12 @@ public class GameMechanics : MonoBehaviour
             if (Physics.Raycast(ray, out tmpHitHighlight, 100))
             {
                 var cd = tmpHitHighlight.transform.GetComponentInChildren<CellLogic>();
-
                 Debug.Log($"Hit: {cd}");
 
                 //make text visible
                 cd.tmpCellValue.transform.gameObject.SetActive(true);
 
-                //hide the button
+                //hide the button part of the cell
                 cd.pressedButton.gameObject.SetActive(false);
 
                 //make bomb visible if there is a bomb
@@ -179,19 +138,38 @@ public class GameMechanics : MonoBehaviour
                     cd.bombRef.transform.gameObject.SetActive(true);
                     //change text to value to be displayed
                     //cd.tmpCellValue.text = $" ";
+
+                    loseGame();
                 } else
                 {
                     //change text to value to be displayed
-                    cd.tmpCellValue.text = $"{boardData[cd.row, cd.col]}";
+                    cd.tmpCellValue.text = $"{cd.cellValue}";
                 }
-                
             }
         }
     }
 
+    //always updates via clock speed
     private void FixedUpdate()
     {
-        //always updates via clock speed
+    }
+
+    //handles vars when player loses game
+    private void loseGame()
+    {
+        //destroy all cells in board after 4 seconds
+        GameObject[] objectsWithTag = GameObject.FindGameObjectsWithTag("Cell");
+        foreach (GameObject gObj in objectsWithTag)
+        {
+            Destroy(gObj, 4f);
+        }
+
+        //Note: there is no delay between the destruction of the cells and the debug statement below
+        // i.e. the logic still flows like normal
+
+        Debug.Log($"You Lost :(");
+
+        //bring up the main menu where player can select options again
     }
 
     //updates the values within BoardData after the bombs have been set
@@ -203,24 +181,33 @@ public class GameMechanics : MonoBehaviour
         {
             for (int j = 0; j < width; j++)
             {
+                //obtain the current element in the board
+                var currCell = boardData[i, j].GetComponentInChildren<CellLogic>();
+
                 //if current elt in board is not a bomb, find it's value
-                if (boardData[i, j] != -1)
+                if (!(currCell.IsBomb))
                 {
                     //find neighbors that are bombs
                     for (int k = i - 1; k < i + 2; k++)
                     {
                         for (int l = j - 1; l < j + 2; l++)
                         {
+                            
                             //check if k and l are within bounds of board
                             //also check that [k,l] =/= [i,j]
                             //also check if the current neighbor is a bomb
                             if (k >= 0 && k < length &&
                                 l >= 0 && l < width &&
-                                !(k == i && l == j) &&
-                                boardData[k, l] == -1)
+                                !(k == i && l == j))
                             {
-                                //increment value
-                                boardData[i, j] += 1;
+                                //obtain neighbor since the position is valid
+                                var neighbor = boardData[k, l].GetComponentInChildren<CellLogic>();
+
+                                //if the neighbor is a bomb, then increment current cell
+                                if (neighbor.IsBomb)
+                                {
+                                    currCell.cellValue += 1;
+                                }
                             }
                         }
                     }
