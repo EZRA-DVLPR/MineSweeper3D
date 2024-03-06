@@ -8,8 +8,8 @@ public class CellLogic : MonoBehaviour
     //current cell is a bomb or not
     public bool IsBomb;
 
-    //current cell has been selected (?)
-    public bool selected;
+    //current cell has been left clicked
+    public bool selected = false;
 
     //value for the current cell
     //what will be displayed if not a bomb
@@ -23,6 +23,7 @@ public class CellLogic : MonoBehaviour
     public Transform bombRef;
     public Transform pressedButton;
     public Transform cellBase;
+    public Transform flagParent;
 
     //name of the created cell
     public string CellId => $"{row}, {col}";
