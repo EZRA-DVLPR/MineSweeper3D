@@ -145,6 +145,8 @@ public class GameMechanics : MonoBehaviour
                 }
                 else
                 {
+                    //current cell is not a bomb
+
                     //change text to value to be displayed
                     cd.tmpCellValue.text = $"{cd.cellValue}";
 
@@ -153,8 +155,27 @@ public class GameMechanics : MonoBehaviour
                     {
                         revealZeroNeighbors(cd);
                     }
-                }
 
+                    //assume the game has been completed
+                    bool gameComplete = true;
+
+                    //if the player has selected all of the numerical cells, they win
+                    foreach (GameObject go in boardData)
+                    {
+                        var elt = go.transform.GetComponentInChildren<CellLogic>();
+                        if ((elt.cellValue >= 0) && (!(elt.selected))) 
+                        {
+                            gameComplete = false;
+                            break;
+                        }
+                    }
+
+                    //handle win
+                    if (gameComplete)
+                    {
+                        winGame();
+                    }
+                }
                 //make flag invisible
                 cd.flag = false;
                 cd.flagParent.transform.gameObject.SetActive(false);
@@ -249,6 +270,36 @@ public class GameMechanics : MonoBehaviour
         return bombLocs;
     }
 
+    //handles vars when player wins game
+    private void winGame()
+    {
+        //put flags on all the bombs if they aren't there already
+        foreach (GameObject go in boardData)
+        {
+            var elt = go.transform.GetComponentInChildren<CellLogic>();
+            if (elt.cellValue < 0)
+            {
+                //make flag visible
+                elt.flag = true;
+                elt.flagParent.transform.gameObject.SetActive(true);
+            }
+        }
+
+        //destroy all cells in board after 4 seconds
+        GameObject[] objectsWithTag = GameObject.FindGameObjectsWithTag("Cell");
+        foreach (GameObject gObj in objectsWithTag)
+        {
+            Destroy(gObj, 4f);
+        }
+
+        StartCoroutine(endGameTimout());
+
+        Debug.Log($"You Win! :)");
+
+        //disallow button clicks
+        gameOver = true;
+    }
+
     //handles vars when player loses game
     private void loseGame()
     {
@@ -263,7 +314,7 @@ public class GameMechanics : MonoBehaviour
         //i.e. the logic still flows like normal
 
         //begin coroutine to handle losing the game
-        StartCoroutine(lostGameTimout());
+        StartCoroutine(endGameTimout());
 
         Debug.Log($"You Lost :(");
 
@@ -272,15 +323,13 @@ public class GameMechanics : MonoBehaviour
     }
 
     //after 4 seconds handles lost game status
-    private IEnumerator lostGameTimout()
+    private IEnumerator endGameTimout()
     {
         Debug.Log($"Timeout for {4} seconds");
         yield return new WaitForSeconds(4f);
 
         //bring up the main menu where player can select options again
         mainMenu.transform.gameObject.SetActive(true);
-
-        
     }
 
     //updates the values within BoardData after the bombs have been set
