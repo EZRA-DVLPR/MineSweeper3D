@@ -6,6 +6,8 @@ using System;
 
 public class GameMechanics : MonoBehaviour
 {
+    public Stopwatch stopwatch;
+
     public GameObject cellPrefab;
 
     public GameObject mainMenu;
@@ -20,10 +22,10 @@ public class GameMechanics : MonoBehaviour
 
     public bool gameOver = false;
 
+    public GameObject[,] boardData;
+
     RaycastHit tmpHitHighlight;
 
-    public GameObject[,] boardData;
-    
     //listener to update grid size
     private void OnEnable()
     {
@@ -33,6 +35,7 @@ public class GameMechanics : MonoBehaviour
     //event to change grid size
     private void UIManager_OnChangeGridSize(int newLength, int newWidth)
     {
+        //create a new board for the game with given dims
         CreateBoard(newLength, newWidth);
         
         //hide menu
@@ -40,23 +43,28 @@ public class GameMechanics : MonoBehaviour
         
         //reset state of game
         gameOver = false;
+
+        //start timer for game
+        stopwatch.startTimer();
     }
-    
-    //listener to disable grid size change
+
+    //stop all listeners when game ends
     private void OnDisable()
     {
         UIManager.OnChangeGridSize -= UIManager_OnChangeGridSize;
+        stopwatch.OnStartTimer -= Stopwatch_HandleTimerStart;
+        stopwatch.OnStopTimer -= Stopwatch_HandleTimerStop;
     }
-    
 
+    private void Stopwatch_HandleTimerStart()
+    {
+        Debug.Log($"Stopwatch Started");
+    }
 
-
-
-
-
-
-
-
+    private void Stopwatch_HandleTimerStop()
+    {
+        Debug.Log($"Stopwatch Stopped");
+    }
 
     public void CreateBoard(int newLength, int newWidth)
     {
@@ -113,6 +121,10 @@ public class GameMechanics : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //start listeners for start and stop timer
+        stopwatch.OnStartTimer += Stopwatch_HandleTimerStart;
+        stopwatch.OnStopTimer += Stopwatch_HandleTimerStop;
+
         //Debug.Log($"Game Setup Complete!");
     }
 
@@ -335,6 +347,9 @@ public class GameMechanics : MonoBehaviour
     private IEnumerator endGameTimout()
     {
         Debug.Log($"Timeout for {4} seconds");
+
+        stopwatch.stopTimer();
+
         yield return new WaitForSeconds(4f);
 
         //bring up the main menu where player can select options again

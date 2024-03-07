@@ -10,8 +10,7 @@ public class UIManager : MonoBehaviour
     public static event ChangeGridSize OnChangeGridSize;
 
     public TMP_InputField userInput;
-
-    // Start is called before the first frame update
+    
     public void ButtonClicked(int id)
     {
         Debug.Log($"You clicked a menu button with id: {id}");

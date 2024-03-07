@@ -6,57 +6,40 @@ using System;
 public class Stopwatch : MonoBehaviour
 {
     //events to handle timer start/stop
-    public delegate void StartTimer();
-    public static event StartTimer OnStartTimer;
+    public delegate void StartTimerEvent();
+    public event StartTimerEvent OnStartTimer;
 
-    public delegate void StopTimer();
-    public static event StopTimer OnStopTimer;
+    public delegate void StopTimerEvent();
+    public event StopTimerEvent OnStopTimer;
 
+    //is stopwatch active and currentTime in float
     bool stopwatchActive = false;
     float currTime;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        currTime = 0f;
-    }
 
     // Update is called once per frame
     void Update()
     {
-        //start stopwatch
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            stopwatchActive = true;
-        }
-
-        //stop stopwatch
-        if (Input.GetKeyDown(KeyCode.O))
-        {
-            stopwatchActive = false;
-        }
-
-        //update and display the time
-        updateTime();
-        displayTime();
-    }
-
-    //updates currTime
-    private void updateTime()
-    {
         if (stopwatchActive)
         {
+            //obtain current time info and display it in console
+            TimeSpan time = TimeSpan.FromSeconds(currTime);
+            Debug.Log($"{time.ToString(@"hh\:mm\:ss\:ff")}");
+
+            //update time
             currTime = currTime + Time.deltaTime;
         }
     }
 
-    //only display the time if it is changing, otherwise just display it once
-    private void displayTime()
+    public void startTimer()
     {
-        TimeSpan time = TimeSpan.FromSeconds(currTime);
-        if (stopwatchActive)
-        {
-            Debug.Log($"{time.ToString(@"hh\:mm\:ss\:ff")}");
-        }
+        currTime = 0f;
+        stopwatchActive = true;
+        OnStartTimer?.Invoke();
+    }
+
+    public void stopTimer()
+    {
+        stopwatchActive = false;
+        OnStopTimer?.Invoke();
     }
 }
