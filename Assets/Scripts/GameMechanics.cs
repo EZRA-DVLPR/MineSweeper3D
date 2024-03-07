@@ -169,7 +169,7 @@ public class GameMechanics : MonoBehaviour
             {
                 var cd = tmpHitHighlight.transform.GetComponentInChildren<CellLogic>();
 
-                //only allow/disallow flag if the current cell is not selected === number showing === clicked
+                //only show/hide flag if the current cell is not selected === number showing === clicked
                 if (!(cd.selected))
                 {
                     //flip flag visibility
@@ -225,15 +225,11 @@ public class GameMechanics : MonoBehaviour
                             revealZeroNeighbors(neighbor);
                         }
                     }
-
-                    
                 }
             }
         }
     }
-
     
-
     //obtains locations for bombs given an area(board dims)
     private int[] assignBombLocs(int area)
     {
