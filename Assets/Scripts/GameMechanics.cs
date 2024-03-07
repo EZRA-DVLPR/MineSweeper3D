@@ -49,6 +49,15 @@ public class GameMechanics : MonoBehaviour
     }
     
 
+
+
+
+
+
+
+
+
+
     public void CreateBoard(int newLength, int newWidth)
     {
         //update stored length and width
