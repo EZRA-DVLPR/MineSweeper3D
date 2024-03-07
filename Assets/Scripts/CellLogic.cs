@@ -40,10 +40,4 @@ public class CellLogic : MonoBehaviour
         tmpCellValue.transform.gameObject.SetActive(false);
         tmpCellValue.text = " ";
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

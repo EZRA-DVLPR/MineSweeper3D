@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using System;
+using TMPro;
 
 public class GameMechanics : MonoBehaviour
 {
@@ -10,7 +11,7 @@ public class GameMechanics : MonoBehaviour
 
     public GameObject cellPrefab;
 
-    public GameObject mainMenu;
+    public GameObject Canvas;
 
     public int difficulty;
 
@@ -25,21 +26,15 @@ public class GameMechanics : MonoBehaviour
     public GameObject[,] boardData;
 
     RaycastHit tmpHitHighlight;
-
-    //listener to update grid size
-    private void OnEnable()
-    {
-        UIManager.OnChangeGridSize += UIManager_OnChangeGridSize;
-    }
-    
+        
     //event to change grid size
     private void UIManager_OnChangeGridSize(int newLength, int newWidth)
     {
         //create a new board for the game with given dims
         CreateBoard(newLength, newWidth);
         
-        //hide menu
-        mainMenu.transform.gameObject.SetActive(false);
+        //hide main menu
+        Canvas.transform.Find("Main Menu Panel").transform.gameObject.SetActive(false);
         
         //reset state of game
         gameOver = false;
@@ -121,11 +116,14 @@ public class GameMechanics : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //start listener for changing grid size
+        UIManager.OnChangeGridSize += UIManager_OnChangeGridSize;
+        
         //start listeners for start and stop timer
         stopwatch.OnStartTimer += Stopwatch_HandleTimerStart;
         stopwatch.OnStopTimer += Stopwatch_HandleTimerStop;
 
-        //Debug.Log($"Game Setup Complete!");
+        Debug.Log($"Game Setup Complete!");
     }
 
     // Update is called once per frame
@@ -306,24 +304,23 @@ public class GameMechanics : MonoBehaviour
             }
         }
 
-        //destroy all cells in board after 4 seconds
-        GameObject[] objectsWithTag = GameObject.FindGameObjectsWithTag("Cell");
-        foreach (GameObject gObj in objectsWithTag)
-        {
-            Destroy(gObj, 4f);
-        }
-
         StartCoroutine(endGameTimout());
 
         Debug.Log($"You Win! :)");
-
-        //disallow button clicks
-        gameOver = true;
     }
 
     //handles vars when player loses game
     private void loseGame()
     {
+        //begin coroutine to handle losing the game
+        StartCoroutine(endGameTimout());
+
+        Debug.Log($"You Lost :(");
+    }
+
+    //after 4 seconds handles lost game status
+    private IEnumerator endGameTimout()
+    {
         //destroy all cells in board after 4 seconds
         GameObject[] objectsWithTag = GameObject.FindGameObjectsWithTag("Cell");
         foreach (GameObject gObj in objectsWithTag)
@@ -331,29 +328,18 @@ public class GameMechanics : MonoBehaviour
             Destroy(gObj, 4f);
         }
 
-        //Note: there is no delay between the destruction of the cells and the debug statement below
-        //i.e. the logic still flows like normal
+        Debug.Log($"Timeout for {4} seconds");
 
-        //begin coroutine to handle losing the game
-        StartCoroutine(endGameTimout());
-
-        Debug.Log($"You Lost :(");
+        //write to the textbox what the time was
+        Canvas.transform.Find("Post-Game Panel/TimeTakenActual").GetComponentInChildren<TMP_Text>().text = stopwatch.stopTimer();
 
         //disallow button clicks
         gameOver = true;
-    }
-
-    //after 4 seconds handles lost game status
-    private IEnumerator endGameTimout()
-    {
-        Debug.Log($"Timeout for {4} seconds");
-
-        stopwatch.stopTimer();
 
         yield return new WaitForSeconds(4f);
 
         //bring up the main menu where player can select options again
-        mainMenu.transform.gameObject.SetActive(true);
+        Canvas.transform.Find("Post-Game Panel").transform.gameObject.SetActive(true);
     }
 
     //updates the values within BoardData after the bombs have been set

@@ -37,9 +37,12 @@ public class Stopwatch : MonoBehaviour
         OnStartTimer?.Invoke();
     }
 
-    public void stopTimer()
+    public string stopTimer()
     {
         stopwatchActive = false;
+        TimeSpan time = TimeSpan.FromSeconds(currTime);
+        string timeString = time.ToString(@"hh\:mm\:ss\:ff");
         OnStopTimer?.Invoke();
+        return timeString;
     }
 }
