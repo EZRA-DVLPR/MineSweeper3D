@@ -14,7 +14,7 @@ public class UIManager : MonoBehaviour
     // Start is called before the first frame update
     public void ButtonClicked(int id)
     {
-        Debug.Log($"You clicked a button with id: {id}");
+        Debug.Log($"You clicked a menu button with id: {id}");
         
         switch(id)
         {

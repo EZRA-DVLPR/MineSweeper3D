@@ -89,6 +89,7 @@ public class GameMechanics : MonoBehaviour
                 {
                     //cell is a bomb, so assign isBomb to true
                     cd.IsBomb = true;
+                    cd.cellValue = -1;
                 } else
                 {
                     //since the cell is not a bomb, we assign it the value of 0
@@ -103,9 +104,7 @@ public class GameMechanics : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //obtain reference to main menu
-        mainMenu = GameObject.FindGameObjectWithTag("Main Menu");
-        Debug.Log($"Game Setup Complete!");
+        //Debug.Log($"Game Setup Complete!");
     }
 
     // Update is called once per frame
@@ -148,6 +147,12 @@ public class GameMechanics : MonoBehaviour
                 {
                     //change text to value to be displayed
                     cd.tmpCellValue.text = $"{cd.cellValue}";
+
+                    //if the current value of the cell is 0, reveal all numerical cells
+                    if (cd.cellValue == 0)
+                    {
+                        revealZeroNeighbors(cd);
+                    }
                 }
 
                 //make flag invisible
@@ -174,6 +179,60 @@ public class GameMechanics : MonoBehaviour
             }
         }
     }
+
+    //given a cell with a value of 0, reveal all neighbors
+    private void revealZeroNeighbors(CellLogic zeroCell)
+    {
+        //obtain the information from zeroCell
+        int currRow = zeroCell.row;
+        int currCol = zeroCell.col;
+
+        //find all neighbors
+        for (int k = currRow - 1; k < currRow + 2; k++)
+        {
+            for (int l = currCol - 1; l < currCol + 2; l++)
+            {
+                //check if k and l are within bounds of board
+                //also check that [k,l] =/= [i,j]
+                if (k >= 0 && k < length &&
+                    l >= 0 && l < width &&
+                    !(k == currRow && l == currCol))
+                {
+                    //obtain neighbor since the position is valid
+                    var neighbor = boardData[k, l].GetComponentInChildren<CellLogic>();
+
+                    //if the neighbor is not selected 
+                    if (!(neighbor.selected))
+                    {
+                        //change text to the neighbor's value and make text visible
+                        neighbor.tmpCellValue.text = $"{neighbor.cellValue}";
+                        neighbor.tmpCellValue.transform.gameObject.SetActive(true);
+
+                        //hide the button part of the cell
+                        neighbor.pressedButton.gameObject.SetActive(false);
+
+                        //make cell selected
+                        neighbor.selected = true;
+
+                        //make flag invisible
+                        neighbor.flag = false;
+                        neighbor.flagParent.transform.gameObject.SetActive(false);
+
+                        //if the neighbor has a value of 0, then recurse
+                        if (neighbor.cellValue == 0)
+                        {
+                            //get all connected zero's to this neighbor
+                            revealZeroNeighbors(neighbor);
+                        }
+                    }
+
+                    
+                }
+            }
+        }
+    }
+
+    
 
     //obtains locations for bombs given an area(board dims)
     private int[] assignBombLocs(int area)
@@ -251,7 +310,6 @@ public class GameMechanics : MonoBehaviour
                             
                             //check if k and l are within bounds of board
                             //also check that [k,l] =/= [i,j]
-                            //also check if the current neighbor is a bomb
                             if (k >= 0 && k < length &&
                                 l >= 0 && l < width &&
                                 !(k == i && l == j))

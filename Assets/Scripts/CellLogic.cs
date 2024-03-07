@@ -12,8 +12,6 @@ public class CellLogic : MonoBehaviour
     public bool selected = false;
 
     //value for the current cell
-    //what will be displayed if not a bomb
-    //[0,8]
     public int cellValue;
 
     //has the current cell been flagged?

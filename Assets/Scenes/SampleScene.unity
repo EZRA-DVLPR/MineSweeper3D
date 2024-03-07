@@ -153,10 +153,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cellPrefab: {fileID: 1640064883}
+  mainMenu: {fileID: 1723762855}
   difficulty: 0
   numBombs: 10
   length: 9
   width: 9
+  gameOver: 0
 --- !u!4 &123072896
 Transform:
   m_ObjectHideFlags: 0
@@ -369,6 +371,11 @@ MonoBehaviour:
 --- !u!4 &333792339 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5591850701541452016, guid: fdf7851f120abcc4588f8f6f22ff8e5c, type: 3}
+  m_PrefabInstance: {fileID: 6644525629299977168}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &543442612 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7425403748803246666, guid: fdf7851f120abcc4588f8f6f22ff8e5c, type: 3}
   m_PrefabInstance: {fileID: 6644525629299977168}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &547609560
@@ -1511,6 +1518,7 @@ MonoBehaviour:
   bombRef: {fileID: 1561782475}
   pressedButton: {fileID: 721103249}
   cellBase: {fileID: 333792339}
+  flagParent: {fileID: 543442612}
   row: 0
   col: 0
   tmpCellValue: {fileID: 731615274}
@@ -1991,11 +1999,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8055359441786340995, guid: fdf7851f120abcc4588f8f6f22ff8e5c, type: 3}
       propertyPath: m_TagString
-      value: Cell
+      value: Untagged
       objectReference: {fileID: 0}
     - target: {fileID: 9130758818317460371, guid: fdf7851f120abcc4588f8f6f22ff8e5c, type: 3}
       propertyPath: m_Name
       value: tmpCellValue
+      objectReference: {fileID: 0}
+    - target: {fileID: 9130758818317460371, guid: fdf7851f120abcc4588f8f6f22ff8e5c, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9143820440089237233, guid: fdf7851f120abcc4588f8f6f22ff8e5c, type: 3}
       propertyPath: m_RootOrder
