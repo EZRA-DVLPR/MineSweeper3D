@@ -9,7 +9,6 @@ TagManager:
   - Post-Game Menu
   - Settings Menu
   - Pause Menu
-  - Time Display
   layers:
   - Default
   - TransparentFX

@@ -13,6 +13,10 @@ public class GameMechanics : MonoBehaviour
 
     public GameObject Canvas;
 
+    public static int prevPanel;
+
+    public static int currPanel = 6;
+
     public int difficulty;
 
     public int numBombs;
@@ -21,7 +25,9 @@ public class GameMechanics : MonoBehaviour
 
     public int width;
 
-    public bool gameOver = false;
+    public static bool gameOver = false;
+
+    public static bool playingGame = false;
 
     public GameObject[,] boardData;
 
@@ -43,10 +49,58 @@ public class GameMechanics : MonoBehaviour
         stopwatch.startTimer();
     }
 
+    //changes panels (menus)
+    private void UIManager_OnChangePanel(int newPanel)
+    {
+        //hide the current panel and if not settings => prevPanel = currPanel
+        switch (currPanel)
+        {
+            //Settings
+            case 4:
+                Canvas.transform.Find("Settings Panel").transform.gameObject.SetActive(false);
+                break;
+
+            //Main menu
+            case 6:
+                Canvas.transform.Find("Main Menu Panel").transform.gameObject.SetActive(false);
+                prevPanel = 6;
+                break;
+
+            //Post game
+            case 7:
+                Canvas.transform.Find("Post-Game Panel").transform.gameObject.SetActive(false);
+                prevPanel = 7;
+                break;
+        }
+
+        //show only the new panel and make it the current panel
+        switch (newPanel)
+        {
+            //Settings
+            case 4:
+                Canvas.transform.Find("Settings Panel").transform.gameObject.SetActive(true);
+                currPanel = 4;
+                break;
+
+            //Main Menu
+            case 6:
+                Canvas.transform.Find("Main Menu Panel").transform.gameObject.SetActive(true);
+                currPanel = 6;
+                break;
+
+            //Post Game
+            case 7:
+                Canvas.transform.Find("Post-Game Panel").transform.gameObject.SetActive(true);
+                currPanel = 7;
+                break;
+        }
+    }
+
     //stop all listeners when game ends
     private void OnDisable()
     {
         UIManager.OnChangeGridSize -= UIManager_OnChangeGridSize;
+        UIManager.OnChangePanel -= UIManager_OnChangePanel;
         stopwatch.OnStartTimer -= Stopwatch_HandleTimerStart;
         stopwatch.OnStopTimer -= Stopwatch_HandleTimerStop;
     }
@@ -63,6 +117,10 @@ public class GameMechanics : MonoBehaviour
 
     public void CreateBoard(int newLength, int newWidth)
     {
+        //reset panel info
+        currPanel = 6;
+        prevPanel = 0;
+
         //update stored length and width
         length = newLength;
         width = newWidth;
@@ -109,8 +167,16 @@ public class GameMechanics : MonoBehaviour
                 }
             }
         }
+
         //update the values of the non-bomb elements
         updateBoardData();
+
+        //set playing Game status => allows pausing
+        playingGame = true;
+
+        //reset panel info
+        currPanel = 0;
+        prevPanel = 0;
     }
 
     // Start is called before the first frame update
@@ -118,7 +184,10 @@ public class GameMechanics : MonoBehaviour
     {
         //start listener for changing grid size
         UIManager.OnChangeGridSize += UIManager_OnChangeGridSize;
-        
+
+        //start listener for updating panel
+        UIManager.OnChangePanel += UIManager_OnChangePanel;
+
         //start listeners for start and stop timer
         stopwatch.OnStartTimer += Stopwatch_HandleTimerStart;
         stopwatch.OnStopTimer += Stopwatch_HandleTimerStop;
@@ -321,6 +390,9 @@ public class GameMechanics : MonoBehaviour
     //after 4 seconds handles lost game status
     private IEnumerator endGameTimout()
     {
+        //disallow pausing
+        playingGame = false;
+
         //destroy all cells in board after 4 seconds
         GameObject[] objectsWithTag = GameObject.FindGameObjectsWithTag("Cell");
         foreach (GameObject gObj in objectsWithTag)
@@ -340,6 +412,10 @@ public class GameMechanics : MonoBehaviour
 
         //bring up the main menu where player can select options again
         Canvas.transform.Find("Post-Game Panel").transform.gameObject.SetActive(true);
+
+        //reset panel info
+        currPanel = 7;
+        prevPanel = 0;
     }
 
     //updates the values within BoardData after the bombs have been set
