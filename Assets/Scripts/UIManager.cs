@@ -21,16 +21,6 @@ public class UIManager : MonoBehaviour
 
     [SerializeField] public AudioSource buttonClickSoundEffect;
 
-    [SerializeField] public AudioSource TogglePressSoundEffect;
-
-    //plays sound when toggle is made
-    public void ToggleButton(bool toggle)
-    {
-        TogglePressSoundEffect.Play();
-
-        //handle toggle information
-    }
-
     //handle events for buttons being clicked on menus
     public void ButtonClicked(int id)
     {
@@ -40,8 +30,7 @@ public class UIManager : MonoBehaviour
         {
             //easy
             case 0:
-                OnChangeGridSize?.Invoke(5, 5);
-                //OnChangeSize?.Invoke(9, 9);
+                OnChangeGridSize?.Invoke(9, 9);
                 break;
 
             //medium
