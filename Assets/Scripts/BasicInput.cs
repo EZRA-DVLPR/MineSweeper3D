@@ -5,59 +5,52 @@ using UnityEngine;
 public class BasicInput : MonoBehaviour
 {
 
-    public int direction = 1;
+    public float cameraSpeed = 5f;
 
-    void Start()
-    {
-        //Debug.Log($"Hello World!");
-    }
+    private bool isMoving = false;
+
+    private Vector3 lastMousePosition;
 
     // Update is called once per frame
     void Update()
     {
-        /*  Camera Movement options
-         *  
-         *  `Q` inverts the direction to be traveled
-         *  `X`, `Y`, `Z` travels along that direction
-         */
-        if (Input.GetKeyDown(KeyCode.Q))
+        //only allow camera movement if the player is playing the game
+        if (GameMechanics.playingGame)
         {
-            direction *= -1;
-        }
+            //if middle mouse button is pressed then allow movement;
+            if (Input.GetMouseButtonDown(2))
+            {
+                isMoving = true;
+                lastMousePosition = Input.mousePosition;
+            }
 
-        if (Input.GetKey(KeyCode.X))
-        {
-            transform.Translate(new Vector3(direction, 0, 0));
-        }
-        
-        if (Input.GetKey(KeyCode.Y))
-        {
-            transform.Translate(new Vector3(0, direction, 0));
-        }
+            //if middle mouse button is released then disallow movement
+            if (Input.GetMouseButtonUp(2))
+            {
+                isMoving = false;
+            }
 
-        if (Input.GetKey(KeyCode.Z))
-        {
-            transform.Translate(new Vector3(0, 0, direction));
-        }
+            //if middle mouse button is held down, then we can move the camera
+            if (isMoving)
+            {
+                Vector3 deltaMousePosition = Input.mousePosition - lastMousePosition;
+                Vector3 moveDirection = new Vector3(deltaMousePosition.x, deltaMousePosition.y, 0f);
 
-        //`R` reset's the camera to the starting default position -- dependent on the difficulty selected!
+                //adjust camera posn
+                transform.Translate(moveDirection * cameraSpeed * Time.deltaTime);
 
-        if (Input.GetKey(KeyCode.R))
-        {
-            //easy
-            transform.position = (new Vector3(4, 4, -10));
+                //update last mouse psn
+                lastMousePosition = Input.mousePosition;
+            }
 
-            //medium
+            //allow scroll wheel to adjust z axis 
+            float ScrollInput = Input.GetAxis("Mouse ScrollWheel");
+            transform.Translate(Vector3.forward * ScrollInput * cameraSpeed * 100 * Time.deltaTime);
 
-            //hard
-
-            //custom
-        }
-
-        if (Input.GetKey(KeyCode.D))
-        {
-            //ability to change the difficulty (cycle through 0 -> 4)
-            //difficulty = 5;
+            if (Input.GetKey(KeyCode.R))
+            {
+                transform.position = (new Vector3(4, 4, -10));
+            }
         }
     }
 }

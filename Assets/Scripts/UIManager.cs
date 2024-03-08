@@ -41,19 +41,25 @@ public class UIManager : MonoBehaviour
             //custom difficulty so user needs to select size
             //read the two text boxes for input and if invalid, display error in console
             case 3:
-                //get the info from the text boxes and set arbitrarily high number of cells for dim max
+                //get the info from the text boxes
                 string givenLength = LengthBox.transform.Find("Text Area/Text").GetComponent<TMP_Text>().text.Replace("\u200B", "");
                 string givenWidth = WidthBox.transform.Find("Text Area/Text").GetComponent<TMP_Text>().text.Replace("\u200B", "");
 
+                //make int versions of length and width
                 int givenLengthAsInt = 0;
                 int givenWidthAsInt = 0;
 
+                //set arbitrarily high number of cells for dim max (1000)
                 if ((Int32.TryParse(givenLength, out givenLengthAsInt)) && (Int32.TryParse(givenWidth, out givenWidthAsInt)))
                 {
-                    Debug.Log($"L int: {givenLengthAsInt}");
-                    Debug.Log($"W int: {givenWidthAsInt}");
-
-                    OnChangeGridSize?.Invoke(givenLengthAsInt, givenWidthAsInt);
+                    if ((givenLengthAsInt > 1) && (givenLengthAsInt <= 1000) && 
+                       (givenWidthAsInt > 1) && (givenWidthAsInt <= 1000))
+                    {
+                        OnChangeGridSize?.Invoke(givenLengthAsInt, givenWidthAsInt);
+                    } else
+                    {
+                        Debug.Log($"Invalid integer bounds for length/width. Please enter a value between 1 and 1001");
+                    }
                 }
                 else
                 {

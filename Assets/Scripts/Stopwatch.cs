@@ -21,10 +21,6 @@ public class Stopwatch : MonoBehaviour
     {
         if (stopwatchActive)
         {
-            //obtain current time info and display it in console
-            TimeSpan time = TimeSpan.FromSeconds(currTime);
-            Debug.Log($"{time.ToString(@"hh\:mm\:ss\:ff")}");
-
             //update time
             currTime = currTime + Time.deltaTime;
         }

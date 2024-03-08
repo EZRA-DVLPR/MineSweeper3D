@@ -132,7 +132,7 @@ public class GameMechanics : MonoBehaviour
         boardData = new GameObject[length, width];
 
         //create the locations for the bombs to be placed
-        int[] bombLocs = assignBombLocs(area);
+        int[,] bombLocs = assignBombLocs();
 
         //makes cells for the board
         for (int i = 0; i < length; i++)
@@ -145,6 +145,7 @@ public class GameMechanics : MonoBehaviour
                 go.transform.Rotate(270, 0, 0);
                 go.transform.name = $"[{i}, {j}]";
                 go.tag = "Cell";
+                go.transform.gameObject.SetActive(true);
 
                 //insert the newly made game object into boardData
                 boardData[i,j] = go;
@@ -155,7 +156,7 @@ public class GameMechanics : MonoBehaviour
                 cd.col = j;
 
                 //assign (isBomb / value) if the curr cell (is / is not) a bomb
-                if ((Array.IndexOf(bombLocs, ((i * length) + j))) != -1)
+                if (bombLocs[i,j] == -1)
                 {
                     //cell is a bomb, so assign isBomb to true
                     cd.IsBomb = true;
@@ -338,21 +339,30 @@ public class GameMechanics : MonoBehaviour
             }
         }
     }
-    
+
     //obtains locations for bombs given an area(board dims)
-    private int[] assignBombLocs(int area)
+    private int[,] assignBombLocs()
     {
-        //decide how many bombs to place based on area
-        //the number of bombs to place is roughly the square root of the area of the board
-        numBombs = Mathf.RoundToInt(Mathf.Sqrt(area));
+        //decide how many bombs to place based on area => randomly selecte a percentage from 12 to 28 of the area
+        int numBombs = Mathf.RoundToInt(length * width * UnityEngine.Random.Range(0.12f, 0.28f));
 
         //create container for the bomb locations
-        int[] bombLocs = new int[numBombs];
+        int[,] bombLocs = new int[length, width];
+
+        int plantedBombs = 0;
 
         //plant the bombs in random positions on the board
-        for (int i = 0; i < numBombs; i++)
+        while (plantedBombs < numBombs)
         {
-            bombLocs[i] = UnityEngine.Random.Range(0, area);
+            int col = UnityEngine.Random.Range(0, length);
+            int row = UnityEngine.Random.Range(0, width);
+
+            //plant a bomb in a new bomb position
+            if (bombLocs[col, row] != -1)
+            {
+                bombLocs[col, row] = -1;
+                plantedBombs++;
+            }
         }
 
         return bombLocs;
