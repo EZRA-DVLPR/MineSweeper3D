@@ -19,8 +19,6 @@ public class GameMechanics : MonoBehaviour
 
     public int difficulty;
 
-    public int numBombs;
-
     public int length;
 
     public int width;
@@ -32,7 +30,28 @@ public class GameMechanics : MonoBehaviour
     public GameObject[,] boardData;
 
     RaycastHit tmpHitHighlight;
-        
+
+    //sound effects
+    [SerializeField] public AudioSource StartGameSoundEffect;
+
+    [SerializeField] public AudioSource WinResultsScreenSoundEffect;
+
+    [SerializeField] public AudioSource LoseResultsScreenSoundEffect;
+
+    [SerializeField] public AudioSource WinEndMatchSoundEffect;
+
+    [SerializeField] public AudioSource LoseEndMatchSoundEffect; //explosion sound
+
+    [SerializeField] public AudioSource FlagOnSoundEffect;
+
+    [SerializeField] public AudioSource FlagOffSoundEffect;
+
+    //songs
+
+    [SerializeField] public AudioSource MenuSong;
+
+    [SerializeField] public AudioSource GameplaySong;
+
     //event to change grid size
     private void UIManager_OnChangeGridSize(int newLength, int newWidth)
     {
@@ -47,6 +66,9 @@ public class GameMechanics : MonoBehaviour
 
         //start timer for game
         stopwatch.startTimer();
+
+        MenuSong.Stop();
+        GameplaySong.Play();
     }
 
     //changes panels (menus)
@@ -178,11 +200,18 @@ public class GameMechanics : MonoBehaviour
         //reset panel info
         currPanel = 0;
         prevPanel = 0;
+
+        StartGameSoundEffect.Play();
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        //set up panels
+        Canvas.transform.Find("Main Menu Panel").transform.gameObject.SetActive(true);
+        Canvas.transform.Find("Post-Game Panel").transform.gameObject.SetActive(false);
+        Canvas.transform.Find("Settings Panel").transform.gameObject.SetActive(false);
+
         //start listener for changing grid size
         UIManager.OnChangeGridSize += UIManager_OnChangeGridSize;
 
@@ -192,6 +221,9 @@ public class GameMechanics : MonoBehaviour
         //start listeners for start and stop timer
         stopwatch.OnStartTimer += Stopwatch_HandleTimerStart;
         stopwatch.OnStopTimer += Stopwatch_HandleTimerStop;
+
+        //play menu song
+        MenuSong.Play();
 
         Debug.Log($"Game Setup Complete!");
     }
@@ -214,7 +246,6 @@ public class GameMechanics : MonoBehaviour
             if (Physics.Raycast(ray, out tmpHitHighlight, 100))
             {
                 var cd = tmpHitHighlight.transform.GetComponentInChildren<CellLogic>();
-                //Debug.Log($"Hit: {cd}");
 
                 //make text visible
                 cd.tmpCellValue.transform.gameObject.SetActive(true);
@@ -285,6 +316,14 @@ public class GameMechanics : MonoBehaviour
                     //flip flag visibility
                     cd.flag = !(cd.flag);
                     cd.flagParent.transform.gameObject.SetActive(cd.flag);
+
+                    if (cd.flag)
+                    {
+                        FlagOffSoundEffect.Play();
+                    } else
+                    {
+                        FlagOnSoundEffect.Play();
+                    }
                 }
             }
         }
@@ -383,7 +422,7 @@ public class GameMechanics : MonoBehaviour
             }
         }
 
-        StartCoroutine(endGameTimout());
+        StartCoroutine(endGameTimout(0));
 
         Debug.Log($"You Win! :)");
     }
@@ -392,25 +431,37 @@ public class GameMechanics : MonoBehaviour
     private void loseGame()
     {
         //begin coroutine to handle losing the game
-        StartCoroutine(endGameTimout());
+        StartCoroutine(endGameTimout(1));
 
         Debug.Log($"You Lost :(");
     }
 
     //after 4 seconds handles lost game status
-    private IEnumerator endGameTimout()
+    private IEnumerator endGameTimout(int gameFinish)
     {
-        //disallow pausing
+        //handle effects before post-game screen/menu (sound and text)
+        if (gameFinish == 0)
+        {
+            //player won
+            WinEndMatchSoundEffect.Play();
+            Canvas.transform.Find("Post-Game Panel/LoseText").transform.gameObject.SetActive(false);
+        }
+        else
+        {
+            //player lost
+            LoseEndMatchSoundEffect.Play();
+            Canvas.transform.Find("Post-Game Panel/WinText").transform.gameObject.SetActive(false);
+        }
+
+        //game is over
         playingGame = false;
 
         //destroy all cells in board after 4 seconds
         GameObject[] objectsWithTag = GameObject.FindGameObjectsWithTag("Cell");
         foreach (GameObject gObj in objectsWithTag)
         {
-            Destroy(gObj, 4f);
+            Destroy(gObj, 2f);
         }
-
-        Debug.Log($"Timeout for {4} seconds");
 
         //write to the textbox what the time was
         Canvas.transform.Find("Post-Game Panel/TimeTakenActual").GetComponentInChildren<TMP_Text>().text = stopwatch.stopTimer();
@@ -418,10 +469,28 @@ public class GameMechanics : MonoBehaviour
         //disallow button clicks
         gameOver = true;
 
-        yield return new WaitForSeconds(4f);
+        GameplaySong.Stop();
+
+        yield return new WaitForSeconds(2f);
+
+        MenuSong.Play();
 
         //bring up the main menu where player can select options again
         Canvas.transform.Find("Post-Game Panel").transform.gameObject.SetActive(true);
+
+        //handle effects for post-game screen/menu
+        if (gameFinish == 0)
+        {
+            //player won
+            WinResultsScreenSoundEffect.Play();
+            Canvas.transform.Find("Post-Game Panel/WinText").transform.gameObject.SetActive(true);
+        }
+        else
+        {
+            //player lost
+            LoseResultsScreenSoundEffect.Play();
+            Canvas.transform.Find("Post-Game Panel/LoseText").transform.gameObject.SetActive(true);
+        }
 
         //reset panel info
         currPanel = 7;

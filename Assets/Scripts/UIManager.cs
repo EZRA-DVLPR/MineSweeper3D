@@ -17,10 +17,26 @@ public class UIManager : MonoBehaviour
 
     public GameObject WidthBox;
 
+    public GameObject VolumeSlider;
+
+    [SerializeField] public AudioSource buttonClickSoundEffect;
+
+    [SerializeField] public AudioSource TogglePressSoundEffect;
+
+    //plays sound when toggle is made
+    public void ToggleButton(bool toggle)
+    {
+        TogglePressSoundEffect.Play();
+
+        //handle toggle information
+    }
+
     //handle events for buttons being clicked on menus
     public void ButtonClicked(int id)
-    {   
-        switch(id)
+    {
+        buttonClickSoundEffect.Play();
+
+        switch (id)
         {
             //easy
             case 0:
