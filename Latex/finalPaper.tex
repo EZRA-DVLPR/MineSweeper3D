@@ -1,0 +1,67 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{graphicx}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{cite}
+\usepackage[table]{xcolor}
+\usepackage{newclude}
+\usepackage{hyperref}
+\usepackage{indentfirst}
+\usepackage[super]{nth}
+
+\begin{document}
+
+    \title{MineSweeper 3D}
+
+    \author{Isaiah Martinez \\ CSUN \\ Computer Science Department \\ isaiah.martinez.891@my.csun.edu}
+          
+    \date{03/08/2024}
+
+    \maketitle
+   
+    \tableofcontents
+
+    \newpage
+
+    \section{Change History}
+
+    Version: 0.09
+
+    Modifier: Isaiah Martinez
+    
+    Date: 2/19/24
+    
+    Description of Change: Discussed High Level Architecture of the project: Unity for modeling, C\#/Python for helper script, Python for ML training, and JS for API connectivity.
+    Added template to follow for documentation.
+    Structured git repo directories.
+    First, we will be working on a set amount of locations with small amount of available traffic data.
+    Later, we hope to implement API connectivity to obtain traffic info and map data with more locations.
+ 
+    %horizontal line
+    \noindent\rule{12cm}{0.4pt}
+
+    Version: 0.05
+
+    Modifier: Isaiah Martinez
+    
+    Date: 2/12/24
+    
+    Description of Change: Made Git repository. 
+    Looked at scholarly articles for related works.
+    Uploaded sample scholarly article to view.
+    Laid out big ideas for project.
+    Began work on models to be used in Unity.
+ 
+    \include*{Intro}
+    \newpage
+    \include*{DesignGoals}
+    \include*{SysBehavior}
+    \include*{LogView}
+    \include*{ProcessView}
+    \include*{DevView}
+    \include*{PhysView}
+    \include*{UCView}
+    \include*{Reflection}
+    \include*{Acknowledgements}
+
+\end{document}

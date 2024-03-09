@@ -70,3 +70,11 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# Ignore Latex Aux files
+/Latex/*.aux
+/Latex/*.log
+/Latex/*.gz
+/Latex/*.toc
+/Latex/Sample*.*
+/Latex/toBeImported.tex
